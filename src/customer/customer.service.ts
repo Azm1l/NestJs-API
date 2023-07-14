@@ -53,7 +53,14 @@ export class CustomerService {
     };
   }
 
-  update(id: number, updateCustomerDto: UpdateCustomerDto) {
-    return `This action updates a #${id} customer`;
+  async update(id: string, updateCustomerDto: UpdateCustomerDto) {
+    const updateData = await this.prisma.customer.update({
+      where: { customer_id: id },
+      data: updateCustomerDto,
+    });
+    return {
+      success: true,
+      data: updateData,
+    };
   }
 }
