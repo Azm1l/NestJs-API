@@ -1,0 +1,714 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model agen {
+  agen_id          String           @id @db.Char(10)
+  agen_name        String?          @db.VarChar(50)
+  agen_address     String?          @db.Text
+  city_code        String           @db.Char(10)
+  phone            String?          @db.VarChar(35)
+  handphone        String?          @db.VarChar(35)
+  email            String?          @db.VarChar(100)
+  description      String?          @db.Text
+  status           String           @default(dbgenerated("(0)")) @db.Char(1)
+  create_by        String?          @db.VarChar(20)
+  create_datetime  DateTime?        @db.DateTime(0)
+  create_host      String?          @db.VarChar(20)
+  update_by        String?          @db.VarChar(20)
+  update_datetime  DateTime?        @db.DateTime(0)
+  update_host      String?          @db.VarChar(20)
+  city_destination city_destination @relation(fields: [city_code], references: [city_code], onUpdate: Restrict, map: "agent_fk")
+
+  @@index([city_code], map: "city_code")
+}
+
+model city_destination {
+  city_code                                                         String            @id @db.VarChar(10)
+  city_name                                                         String?           @db.VarChar(75)
+  province_id                                                       String            @db.Char(2)
+  create_datetime                                                   DateTime?         @db.DateTime(0)
+  create_by                                                         String?           @db.VarChar(20)
+  create_host                                                       String?           @db.VarChar(20)
+  update_datetime                                                   DateTime?         @db.DateTime(0)
+  update_by                                                         String?           @db.VarChar(20)
+  update_host                                                       String?           @db.VarChar(20)
+  agen                                                              agen[]
+  provinces                                                         provinces         @relation(fields: [province_id], references: [id], onUpdate: Restrict, map: "city_destination_fk")
+  customer                                                          customer[]
+  hpp_destination                                                   hpp_destination[]
+  trx_delivery_trx_delivery_destination_city_codeTocity_destination trx_delivery[]    @relation("trx_delivery_destination_city_codeTocity_destination")
+  trx_delivery_trx_delivery_origin_city_codeTocity_destination      trx_delivery[]    @relation("trx_delivery_origin_city_codeTocity_destination")
+  vendor                                                            vendor[]
+
+  @@index([province_id], map: "province_id")
+}
+
+model consignee {
+  consignee_id     String    @id @db.Char(10)
+  customer_type_id Int?
+  consignee_name   String?   @db.VarChar(150)
+  address          String?   @db.Text
+  zip_code         String?   @db.VarChar(10)
+  city_code        String?   @db.VarChar(10)
+  phone            String?   @db.VarChar(50)
+  fax_number       String?   @db.VarChar(50)
+  email            String?   @db.VarChar(100)
+  description      String?   @db.Text
+  create_by        String?   @db.VarChar(20)
+  create_datetime  DateTime? @db.DateTime(0)
+  create_host      String?   @db.VarChar(20)
+  update_by        String?   @db.VarChar(20)
+  update_datetime  DateTime? @db.DateTime(0)
+  update_host      String?   @db.VarChar(20)
+  customer_id      String?   @db.VarChar(10)
+  pic_name         String?   @db.VarChar(50)
+
+  @@index([city_code], map: "city_code")
+  @@index([customer_type_id], map: "consignee_fk_new")
+}
+
+model country {
+  country_id   Int         @id @default(autoincrement())
+  country_name String?     @unique(map: "country_name") @db.VarChar(100)
+  status       String      @default(dbgenerated("(0)")) @db.Char(1)
+  create_by    String?     @db.VarChar(20)
+  create_time  DateTime?   @db.DateTime(0)
+  create_host  String?     @db.VarChar(20)
+  update_by    String?     @db.VarChar(20)
+  update_time  DateTime?   @db.DateTime(0)
+  update_host  String?     @db.VarChar(20)
+  provinces    provinces[]
+}
+
+model customer {
+  customer_id              String            @id @db.Char(10)
+  customer_type_id         Int?
+  customer_name            String?           @db.VarChar(150)
+  address                  String?           @db.Text
+  city_code                String?           @db.VarChar(10)
+  phone                    String?           @db.VarChar(50)
+  fax_number               String?           @db.VarChar(50)
+  email                    String?           @db.VarChar(100)
+  contact_person           String?           @db.VarChar(50)
+  contact_person_handphone String?           @db.VarChar(50)
+  description              String?           @db.Text
+  create_by                String?           @db.VarChar(20)
+  create_datetime          DateTime?         @db.DateTime(0)
+  create_host              String?           @db.VarChar(20)
+  update_by                String?           @db.VarChar(20)
+  update_datetime          DateTime?         @db.DateTime(0)
+  update_host              String?           @db.VarChar(20)
+  customer_type            customer_type?    @relation(fields: [customer_type_id], references: [customer_type_id], onDelete: Restrict, onUpdate: Restrict, map: "customer_fk")
+  city_destination         city_destination? @relation(fields: [city_code], references: [city_code], onDelete: Restrict, onUpdate: Restrict, map: "customer_fk1")
+  trx_delivery             trx_delivery[]
+
+  @@index([city_code], map: "city_code")
+  @@index([customer_type_id], map: "customer_fk")
+}
+
+model customer_type {
+  customer_type_id   Int        @id @default(autoincrement())
+  customer_type_name String?    @db.VarChar(35)
+  status             String     @default(dbgenerated("(0)")) @db.Char(1)
+  create_by          String?    @db.VarChar(20)
+  create_time        DateTime?  @db.DateTime(0)
+  create_host        String?    @db.VarChar(20)
+  update_by          String?    @db.VarChar(20)
+  update_time        DateTime?  @db.DateTime(0)
+  update_host        String?    @db.VarChar(20)
+  customer           customer[]
+}
+
+model delivery_method {
+  delivery_method_id   Int     @id @default(autoincrement())
+  delivery_method_name String? @db.VarChar(100)
+  status               String  @default(dbgenerated("(0)")) @db.Char(1)
+}
+
+model delivery_type {
+  delivery_type_id   Int                  @id @default(autoincrement())
+  delivery_type_name String?              @db.VarChar(100)
+  status             String               @default(dbgenerated("(0)")) @db.Char(1)
+  trx_delivery_detil trx_delivery_detil[]
+}
+
+model districts {
+  id         String     @id @db.Char(7)
+  regency_id String     @db.Char(4)
+  name       String     @db.VarChar(255)
+  regencies  regencies  @relation(fields: [regency_id], references: [id], onUpdate: Restrict, map: "districts_regency_id_foreign")
+  villages   villages[]
+
+  @@index([regency_id], map: "districts_regency_id_index")
+}
+
+model hpp_destination {
+  hpp_id            Int               @id @default(autoincrement())
+  tanggal_berlaku   DateTime?         @db.Date
+  city_code         String?           @db.VarChar(10)
+  transport_type_id Int?
+  harga_smu         Float             @default(0.000)
+  handling_daerah   Float             @default(0.000)
+  handling_jakarta  Float             @default(0.000)
+  set_upgrade_type  String            @default(dbgenerated("(0)")) @db.Char(1)
+  set_upgrade_value Float             @default(0.000)
+  create_datetime   DateTime?         @db.DateTime(0)
+  create_by         String?           @db.VarChar(20)
+  create_host       String?           @db.VarChar(20)
+  update_datetime   DateTime?         @db.DateTime(0)
+  update_by         String?           @db.VarChar(20)
+  update_host       String?           @db.VarChar(20)
+  waktu             String?           @db.VarChar(5)
+  berat             Int?
+  transport_type    transport_type?   @relation(fields: [transport_type_id], references: [transport_type_id], onDelete: Restrict, onUpdate: Restrict, map: "hpp_destination_fk")
+  city_destination  city_destination? @relation(fields: [city_code], references: [city_code], onDelete: Restrict, onUpdate: Restrict, map: "hpp_destination_fk1")
+
+  @@unique([tanggal_berlaku, city_code, transport_type_id], map: "tanggal_berlaku")
+  @@index([transport_type_id], map: "hpp_destination_fk")
+  @@index([city_code], map: "hpp_destination_fk1")
+}
+
+model measurement {
+  measurement_id     Int                  @id @default(autoincrement())
+  measurement_name   String?              @db.VarChar(35)
+  trx_delivery_detil trx_delivery_detil[]
+}
+
+model payment_type {
+  payment_type_id Int     @id @default(autoincrement())
+  payment_name    String? @db.VarChar(50)
+  status          String  @default(dbgenerated("(0)")) @db.Char(1)
+}
+
+model product {
+  product_id   String         @id @db.VarChar(10)
+  product_name String?        @db.VarChar(100)
+  description  String?        @db.Text
+  status       String         @default(dbgenerated("(0)")) @db.Char(1)
+  create_by    String?        @db.VarChar(20)
+  create_time  DateTime?      @db.DateTime(0)
+  create_host  String?        @db.VarChar(20)
+  update_by    String?        @db.VarChar(20)
+  update_time  DateTime?      @db.DateTime(0)
+  update_host  String?        @db.VarChar(20)
+  trx_delivery trx_delivery[]
+}
+
+model province {
+  province_id   Int      @id @default(autoincrement())
+  province_name String   @unique(map: "province_name") @db.VarChar(255)
+  country_id    Int
+  status        String   @default(dbgenerated("(Y)")) @db.VarChar(255)
+  created_by    String?  @db.VarChar(255)
+  created_at    DateTime @db.DateTime(0)
+  updated_at    DateTime @db.DateTime(0)
+}
+
+model provinces {
+  id               String             @id @db.Char(2)
+  name             String             @db.VarChar(255)
+  country_id       Int?
+  status           String             @default(dbgenerated("(1)")) @db.Char(1)
+  create_by        String?            @db.VarChar(20)
+  create_time      DateTime?          @db.DateTime(0)
+  create_host      String?            @db.VarChar(20)
+  update_by        String?            @db.VarChar(20)
+  update_time      DateTime?          @db.DateTime(0)
+  update_host      String?            @db.VarChar(20)
+  city_destination city_destination[]
+  country          country?           @relation(fields: [country_id], references: [country_id], onDelete: Restrict, onUpdate: Restrict, map: "provinces_fk")
+  regencies        regencies[]
+
+  @@index([country_id], map: "country_id")
+  @@index([name], map: "name")
+}
+
+model regencies {
+  id          String      @id @db.Char(4)
+  province_id String      @db.Char(2)
+  name        String      @db.VarChar(255)
+  status      String      @default(dbgenerated("(1)")) @db.Char(1)
+  districts   districts[]
+  provinces   provinces   @relation(fields: [province_id], references: [id], onUpdate: Restrict, map: "regencies_province_id_foreign")
+
+  @@index([province_id], map: "regencies_province_id_index")
+}
+
+model tbl_connot_status {
+  id                 Int       @id @default(autoincrement())
+  mst_status_id      Int?
+  econnote_number    String?   @db.Char(20)
+  remarks            String?   @db.Text
+  photos             String?   @db.VarChar(150)
+  update_status_by   String?   @db.VarChar(100)
+  update_status_time DateTime? @db.DateTime(0)
+  create_time        DateTime? @db.DateTime(0)
+  link               String?   @db.VarChar(100)
+
+  @@index([econnote_number], map: "econnote_number")
+}
+
+model tbl_keu_kas_kecil {
+  number_kas_kecil        String                    @db.VarChar(20)
+  periode                 Int
+  transaction_date        DateTime?                 @db.Date
+  description             String?                   @db.Text
+  dk                      String?                   @db.Char(1)
+  status                  String?                   @default(dbgenerated("(0)")) @db.Char(1)
+  received_by             String?                   @db.VarChar(100)
+  create_by               String?                   @db.VarChar(50)
+  create_host             String?                   @db.VarChar(20)
+  create_datetime         DateTime?                 @db.DateTime(0)
+  update_by               String?                   @db.VarChar(50)
+  update_host             String?                   @db.VarChar(20)
+  update_datetime         DateTime?                 @db.DateTime(0)
+  closing_datetime        DateTime?                 @db.DateTime(0)
+  closing_by              String?                   @db.VarChar(20)
+  closing_host            String?                   @db.VarChar(20)
+  tbl_keu_kas_kecil_detil tbl_keu_kas_kecil_detil[]
+
+  @@id([number_kas_kecil, periode])
+}
+
+model tbl_keu_kas_kecil_detil {
+  id_detil_kas_kecil      Int               @default(autoincrement())
+  number_kas_kecil        String            @db.VarChar(20)
+  periode                 Int
+  uraian                  String?           @db.Text
+  amount                  Decimal           @default(0.0000) @db.Decimal(18, 4)
+  remarks                 String?           @db.Text
+  file_bukti_trx          String?           @db.VarChar(75)
+  file_bukti_trx_datetime DateTime?         @db.DateTime(0)
+  file_bukti_upload_by    String?           @db.VarChar(50)
+  file_bukti_upload_host  String?           @db.VarChar(20)
+  tbl_keu_kas_kecil       tbl_keu_kas_kecil @relation(fields: [number_kas_kecil, periode], references: [number_kas_kecil, periode], onUpdate: Restrict, map: "tbl_keu_kas_kecil_detil_fk1")
+
+  @@id([id_detil_kas_kecil, periode, number_kas_kecil])
+  @@index([number_kas_kecil, periode], map: "number_kas_kecil")
+}
+
+model tbl_keu_kas_umum {
+  number_kas_umum        String                   @db.VarChar(20)
+  periode                Int
+  transaction_date       DateTime?                @db.Date
+  description            String?                  @db.Text
+  dk                     String?                  @db.Char(1)
+  status                 String?                  @default(dbgenerated("(0)")) @db.Char(1)
+  received_by            String?                  @db.VarChar(100)
+  create_by              String?                  @db.VarChar(50)
+  create_host            String?                  @db.VarChar(20)
+  create_datetime        DateTime?                @db.DateTime(0)
+  update_by              String?                  @db.VarChar(50)
+  update_host            String?                  @db.VarChar(20)
+  update_datetime        DateTime?                @db.DateTime(0)
+  closing_datetime       DateTime?                @db.DateTime(0)
+  closing_by             String?                  @db.VarChar(20)
+  closing_host           String?                  @db.VarChar(20)
+  tbl_keu_kas_umum_detil tbl_keu_kas_umum_detil[]
+
+  @@id([number_kas_umum, periode])
+}
+
+model tbl_keu_kas_umum_detil {
+  id_detil_kas_umum       Int              @default(autoincrement())
+  number_kas_umum         String           @db.VarChar(20)
+  periode                 Int
+  uraian                  String?          @db.Text
+  amount                  Decimal          @default(0.0000) @db.Decimal(18, 4)
+  remarks                 String?          @db.Text
+  file_bukti_trx          String?          @db.VarChar(75)
+  file_bukti_trx_datetime DateTime?        @db.DateTime(0)
+  file_bukti_upload_by    String?          @db.VarChar(50)
+  file_bukti_upload_host  String?          @db.VarChar(20)
+  tbl_keu_kas_umum        tbl_keu_kas_umum @relation(fields: [number_kas_umum, periode], references: [number_kas_umum, periode], onUpdate: Restrict, map: "tbl_keu_kas_umum_detil_fk1")
+
+  @@id([id_detil_kas_umum, periode, number_kas_umum])
+  @@index([number_kas_umum, periode], map: "number_kas_umum")
+}
+
+model tbl_keu_vouc_kecil {
+  vouc_kecil_no    String    @db.VarChar(20)
+  periode          Int
+  transaction_date DateTime? @db.Date
+  description      String?   @db.Text
+  status           String?   @default(dbgenerated("(0)")) @db.Char(1)
+  requested_by     String?   @db.VarChar(20)
+  create_by        String?   @db.VarChar(20)
+  create_host      String?   @db.VarChar(20)
+  create_datetime  DateTime? @db.DateTime(0)
+  update_by        String?   @db.VarChar(20)
+  update_host      String?   @db.VarChar(20)
+  update_datetime  DateTime? @db.DateTime(0)
+  tgl_diajukan     DateTime? @db.DateTime(0)
+  diajukan_host    String?   @db.VarChar(20)
+  diajukan_user    String?   @db.VarChar(20)
+
+  @@id([vouc_kecil_no, periode])
+}
+
+model tbl_keu_vouc_kecil_detil {
+  id_detil_vouc_kecil Int      @default(autoincrement())
+  vouc_kecil_no       String   @db.VarChar(20)
+  periode             Int
+  uraian              String?  @db.Text
+  amount              Decimal? @default(0.0000) @db.Decimal(18, 4)
+  remarks             String?  @db.Text
+  status_approve      String?  @default(dbgenerated("(0)")) @db.Char(1)
+
+  @@id([id_detil_vouc_kecil, vouc_kecil_no, periode])
+}
+
+model tbl_master_connot_status {
+  mst_status_id Int     @id @default(autoincrement())
+  status_name   String? @db.VarChar(50)
+  active_status String  @default(dbgenerated("(0)")) @db.Char(1)
+}
+
+model tbl_sys_menus {
+  menu_id        Int       @id @default(autoincrement())
+  menu_name      String?   @db.VarChar(50)
+  parent_menu_id Int?
+  menu_link      String?   @db.VarChar(150)
+  status         String    @default(dbgenerated("(0)")) @db.Char(1)
+  update_time    DateTime? @db.DateTime(0)
+  update_by      String?   @db.VarChar(20)
+  update_host    String?   @db.VarChar(20)
+}
+
+model tbl_sys_numbering {
+  number_code   String    @id @db.Char(4)
+  prefix        String    @unique(map: "prefix") @db.Char(10)
+  last_number   Int       @default(0)
+  lastby        String?   @db.VarChar(20)
+  last_datetime DateTime? @db.DateTime(0)
+}
+
+model tbl_sys_perm {
+  perm_id   Int     @id @default(autoincrement())
+  perm_desc String? @db.VarChar(150)
+}
+
+model tbl_sys_role {
+  role_id     Int       @id @default(autoincrement())
+  role_name   String?   @db.VarChar(50)
+  create_time DateTime? @db.DateTime(0)
+  create_host String?   @db.VarChar(20)
+  create_by   String?   @db.VarChar(20)
+  update_time DateTime? @db.DateTime(0)
+  update_host String?   @db.VarChar(20)
+  update_by   String?   @db.VarChar(20)
+}
+
+model tbl_sys_role_perm {
+  role_id Int
+  perm_id Int
+
+  @@id([role_id, perm_id])
+}
+
+model tbl_sys_user {
+  user_id         Int       @id @default(autoincrement())
+  username        String?   @unique(map: "username") @db.VarChar(35)
+  password        String?   @db.VarChar(50)
+  fullname        String?   @db.VarChar(50)
+  email           String?   @db.VarChar(100)
+  role_id         Int?
+  photo           String?   @db.VarChar(100)
+  description     String?   @db.Text
+  last_login      DateTime? @db.DateTime(0)
+  last_login_host String?   @db.VarChar(50)
+  create_time     DateTime? @db.DateTime(0)
+  create_host     String?   @db.VarChar(20)
+  create_by       String?   @db.VarChar(20)
+  update_time     DateTime? @db.DateTime(0)
+  update_by       String?   @db.VarChar(20)
+  update_host     String?   @db.VarChar(20)
+
+  @@index([email], map: "email")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tbl_sys_user_menus {
+  user_id Int?
+  menu_id Int?
+
+  @@unique([user_id, menu_id], map: "user_id")
+  @@ignore
+}
+
+model temp_upload_awb {
+  UPLOADID             Int       @id @default(autoincrement())
+  REFERENCE_NUMBER     String?   @db.VarChar(30)
+  ORIGIN_CODE          String?   @db.VarChar(5)
+  DESTINATION_CITY     String?   @db.VarChar(50)
+  DESTINATION_CODE     String?   @db.VarChar(20)
+  DESTINATION_PROVINCE String?   @db.VarChar(50)
+  SHIPPER_CODE         String?   @db.VarChar(20)
+  SHIPPER_NAME         String?   @db.VarChar(50)
+  SHIPPER_ADDRESS      String?   @db.VarChar(200)
+  SHIPPER_TELP         String?   @db.VarChar(20)
+  SHIPPER_ZIPCODE      String?   @db.VarChar(20)
+  SHIPPER_CITY_CODE    String?   @db.VarChar(20)
+  SHIPPER_INSTRUCTION  String?   @db.VarChar(200)
+  CONSIGNEE_NAME       String?   @db.VarChar(50)
+  CONSIGNEE_ADDRESS    String?   @db.VarChar(200)
+  CONSIGNEE_PIC_NAME   String?   @db.VarChar(50)
+  CONSIGNEE_TELP       String?   @db.VarChar(20)
+  CONSIGNEE_ZIPCODE    String?   @db.VarChar(10)
+  GOODS_NAME           String?   @db.VarChar(50)
+  GOODS_QTY            Int?
+  GOODS_WEIGHT         Int?
+  GOODS_COLLY          Int?
+  REMARKS              String?   @db.VarChar(200)
+  HOST                 String?   @db.VarChar(20)
+  USERUPLOAD           String?   @db.VarChar(20)
+  CUSTOMERID           String?   @db.VarChar(20)
+  UPLOADTIME           DateTime? @db.DateTime(0)
+  ECONNOTE_NUMBER      String?   @db.VarChar(20)
+  CONSIGNEE_ID         String?   @db.VarChar(20)
+  SERIAL_NUMBER        String?   @unique(map: "SNIDKX") @db.VarChar(50)
+}
+
+model transport_type {
+  transport_type_id Int               @id @default(autoincrement())
+  transport_name    String?           @unique(map: "transport_name") @db.VarChar(30)
+  hpp_destination   hpp_destination[]
+  trx_delivery      trx_delivery[]
+}
+
+model trx_blanko_resi {
+  no_blanko     String    @id @db.VarChar(20)
+  tgl_blanko    DateTime? @db.Date
+  customer_id   String?   @db.Char(10)
+  jumlah_blanko Int       @default(0)
+  create_by     String?   @db.VarChar(20)
+  create_time   DateTime? @db.DateTime(0)
+  status        String    @default(dbgenerated("(0)")) @db.Char(1)
+}
+
+model trx_delivery {
+  econnote_number                                                       String               @id @db.Char(20)
+  delivery_date                                                         DateTime             @db.DateTime(0)
+  origin_city_code                                                      String?              @db.VarChar(10)
+  destination_city_code                                                 String               @db.VarChar(10)
+  transport_type_id                                                     Int?
+  product_id                                                            String               @db.VarChar(10)
+  shipper_customer_id                                                   String?              @db.Char(10)
+  shipper_address                                                       String?              @db.VarChar(200)
+  shipper_city_code                                                     String?              @db.VarChar(10)
+  shipper_phone                                                         String?              @db.VarChar(20)
+  shipper_zipcode                                                       String?              @db.Char(5)
+  shipper_special_instruction                                           String?              @db.Text
+  consignee_name                                                        String?              @db.VarChar(150)
+  consignee_address                                                     String?              @db.VarChar(200)
+  consignee_city_code                                                   String?              @db.VarChar(10)
+  consignee_phone                                                       String?              @db.VarChar(20)
+  consignee_zipcode                                                     String?              @db.Char(5)
+  consignee_other_note                                                  String?              @db.VarChar(200)
+  shipping_cost                                                         Float?
+  others_cost                                                           Float?
+  insurance_cost                                                        Float?
+  insurance_adm_cost                                                    Float?
+  total_cost                                                            Float?
+  status                                                                String               @default(dbgenerated("(0)")) @db.Char(3)
+  remarks                                                               String?              @db.Text
+  void                                                                  String               @default(dbgenerated("(0)")) @db.Char(1)
+  void_reason                                                           String?              @db.VarChar(200)
+  void_datetime                                                         DateTime?            @db.DateTime(0)
+  create_datetime                                                       DateTime?            @db.DateTime(0)
+  create_by                                                             String?              @db.VarChar(35)
+  create_host                                                           String?              @db.VarChar(20)
+  update_datetime                                                       DateTime?            @db.DateTime(0)
+  update_by                                                             String?              @db.VarChar(35)
+  update_host                                                           String?              @db.VarChar(20)
+  consignee_id                                                          String?              @db.VarChar(20)
+  delivery_method_id                                                    Int?
+  ref_no                                                                String?              @db.VarChar(25)
+  reference_number                                                      String               @db.VarChar(50)
+  order_status                                                          String               @db.Char(1)
+  reference_number2                                                     String?              @db.VarChar(30)
+  transport_type                                                        transport_type?      @relation(fields: [transport_type_id], references: [transport_type_id], onDelete: Restrict, onUpdate: Restrict, map: "trx_delivery_fk")
+  product                                                               product              @relation(fields: [product_id], references: [product_id], onUpdate: Restrict, map: "trx_delivery_fk1")
+  city_destination_trx_delivery_destination_city_codeTocity_destination city_destination     @relation("trx_delivery_destination_city_codeTocity_destination", fields: [destination_city_code], references: [city_code], onUpdate: Restrict, map: "trx_delivery_fk2")
+  city_destination_trx_delivery_origin_city_codeTocity_destination      city_destination?    @relation("trx_delivery_origin_city_codeTocity_destination", fields: [origin_city_code], references: [city_code], onDelete: Restrict, onUpdate: Restrict, map: "trx_delivery_fk3")
+  customer                                                              customer?            @relation(fields: [shipper_customer_id], references: [customer_id], onDelete: Restrict, onUpdate: Restrict, map: "trx_delivery_fk4")
+  trx_delivery_detil                                                    trx_delivery_detil[]
+
+  @@index([destination_city_code], map: "destination_city_code")
+  @@index([origin_city_code], map: "origin_city_code")
+  @@index([product_id], map: "product_id")
+  @@index([shipper_customer_id], map: "shipper_customer_id")
+  @@index([transport_type_id], map: "transport_type_id")
+}
+
+model trx_delivery_detil {
+  trx_delivery_detil_id Int            @id @default(autoincrement())
+  econnote_number       String?        @db.Char(20)
+  delivery_type_id      Int?
+  name_of_goods         String?        @db.VarChar(200)
+  quantity_goods        Int            @default(0)
+  measurement_id        Int?
+  weight_goods          Float?         @db.Float
+  dimension_w           Float?         @db.Float
+  dimension_h           Float?         @db.Float
+  dimension_l           Float?         @db.Float
+  coli                  Int            @default(0)
+  serial_number         String         @db.VarChar(50)
+  trx_delivery          trx_delivery?  @relation(fields: [econnote_number], references: [econnote_number], onDelete: Restrict, onUpdate: Restrict, map: "trx_delivery_detil_fk")
+  delivery_type         delivery_type? @relation(fields: [delivery_type_id], references: [delivery_type_id], onDelete: Restrict, onUpdate: Restrict, map: "trx_delivery_detil_fk1")
+  measurement           measurement?   @relation(fields: [measurement_id], references: [measurement_id], onDelete: Restrict, onUpdate: Restrict, map: "trx_delivery_detil_fk2")
+
+  @@index([econnote_number], map: "connotNumber")
+  @@index([delivery_type_id], map: "delivery_type_id")
+  @@index([measurement_id], map: "measurement_id")
+}
+
+model trx_delivery_detil_pins {
+  trx_delivery_detil_id Int     @id @default(autoincrement())
+  econnote_number       String? @db.Char(20)
+  delivery_type_id      Int?
+  name_of_goods         String? @db.VarChar(200)
+  quantity_goods        Int     @default(0)
+  measurement_id        Int?
+  weight_goods          Float?  @db.Float
+  dimension_w           Float?  @db.Float
+  dimension_h           Float?  @db.Float
+  dimension_l           Float?  @db.Float
+  coli                  Int     @default(0)
+  serial_number         String  @unique(map: "SN_idx") @db.VarChar(50)
+
+  @@index([econnote_number], map: "connotNumber")
+  @@index([delivery_type_id], map: "delivery_type_id")
+  @@index([measurement_id], map: "measurement_id")
+}
+
+model trx_delivery_pins {
+  econnote_number             String    @id @db.Char(20)
+  delivery_date               DateTime  @db.DateTime(0)
+  origin_city_code            String?   @db.VarChar(10)
+  destination_city_code       String    @db.VarChar(10)
+  transport_type_id           Int?
+  product_id                  String    @db.VarChar(10)
+  shipper_customer_id         String?   @db.Char(10)
+  shipper_address             String?   @db.VarChar(200)
+  shipper_city_code           String?   @db.VarChar(10)
+  shipper_phone               String?   @db.VarChar(20)
+  shipper_zipcode             String?   @db.Char(5)
+  shipper_special_instruction String?   @db.Text
+  consignee_name              String?   @db.VarChar(150)
+  consignee_address           String?   @db.VarChar(200)
+  consignee_city_code         String?   @db.VarChar(10)
+  consignee_phone             String?   @db.VarChar(100)
+  consignee_zipcode           String?   @db.Char(5)
+  consignee_other_note        String?   @db.VarChar(200)
+  shipping_cost               Float?
+  others_cost                 Float?
+  insurance_cost              Float?
+  insurance_adm_cost          Float?
+  total_cost                  Float?
+  status                      String    @default(dbgenerated("(0)")) @db.Char(3)
+  remarks                     String?   @db.Text
+  void                        String    @default(dbgenerated("(0)")) @db.Char(1)
+  void_reason                 String?   @db.VarChar(200)
+  void_datetime               DateTime? @db.DateTime(0)
+  create_datetime             DateTime? @db.DateTime(0)
+  create_by                   String?   @db.VarChar(35)
+  create_host                 String?   @db.VarChar(20)
+  update_datetime             DateTime? @db.DateTime(0)
+  update_by                   String?   @db.VarChar(35)
+  update_host                 String?   @db.VarChar(20)
+  consignee_id                String?   @db.VarChar(20)
+  delivery_method_id          Int?
+  ref_no                      String?   @db.VarChar(25)
+  reference_number            String    @db.VarChar(50)
+  order_status                String    @db.Char(1)
+
+  @@index([destination_city_code], map: "destination_city_code")
+  @@index([origin_city_code], map: "origin_city_code")
+  @@index([product_id], map: "product_id")
+  @@index([shipper_customer_id], map: "shipper_customer_id")
+  @@index([transport_type_id], map: "transport_type_id")
+}
+
+model vehicle {
+  vehicle_id      Int       @id @default(autoincrement())
+  vehicle_type_id Int?
+  vehicle_name    String?   @db.VarChar(100)
+  description     String?   @db.Text
+  police_number   String?   @unique(map: "police_number") @db.VarChar(20)
+  production_year Int?
+  colour          String?   @db.VarChar(35)
+  number_of_tires Int?
+  machine_number  String?   @unique(map: "machine_number") @db.VarChar(100)
+  chassis_number  String?   @unique(map: "chassis_number") @db.VarChar(100)
+  estimated_price Float?
+  buy_of_date     DateTime? @db.Date
+  create_by       String?   @db.VarChar(20)
+  create_host     String?   @db.VarChar(20)
+  create_datetime DateTime? @db.DateTime(0)
+  update_by       String?   @db.VarChar(20)
+  update_host     String?   @db.VarChar(20)
+  update_datetime DateTime? @db.DateTime(0)
+}
+
+model vehicle_type {
+  vehicle_type_id   Int     @id @default(autoincrement())
+  vehicle_type_name String? @db.VarChar(35)
+}
+
+model vendor {
+  vendor_id                String            @id @db.Char(10)
+  vendor_name              String?           @db.VarChar(50)
+  phone                    String?           @db.VarChar(25)
+  fax_number               String?           @db.VarChar(25)
+  email                    String?           @db.VarChar(100)
+  vendor_address           String?           @db.Text
+  city_code                String?           @db.Char(10)
+  contact_person           String?           @db.VarChar(50)
+  contact_person_handphone String?           @db.VarChar(35)
+  description              String?           @db.Text
+  status                   String            @default(dbgenerated("(0)")) @db.Char(1)
+  create_by                String?           @db.VarChar(20)
+  create_datetime          DateTime?         @db.DateTime(0)
+  create_host              String?           @db.VarChar(20)
+  update_by                String?           @db.VarChar(20)
+  update_datetime          DateTime?         @db.DateTime(0)
+  update_host              String?           @db.VarChar(20)
+  city_destination         city_destination? @relation(fields: [city_code], references: [city_code], onDelete: Restrict, onUpdate: Restrict, map: "vendor_fk")
+
+  @@index([city_code], map: "city_code")
+}
+
+model villages {
+  id          String    @id @db.Char(10)
+  district_id String    @db.Char(7)
+  name        String    @db.VarChar(255)
+  districts   districts @relation(fields: [district_id], references: [id], onUpdate: Restrict, map: "villages_district_id_foreign")
+
+  @@index([district_id], map: "villages_district_id_index")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model zz_status_report {
+  nomor            BigInt?
+  tgl_kirim        DateTime  @db.Date
+  nomor_resi       String    @db.Char(10)
+  reference_number String?   @db.VarChar(50)
+  pengirim         String?   @db.VarChar(150)
+  penerima         String?   @db.VarChar(150)
+  alamat_penerima  String?   @db.VarChar(200)
+  desription       String?   @db.Text
+  serial_number    String?   @db.VarChar(30)
+  jum_pcs          BigInt?
+  tgl_terima       DateTime? @db.DateTime(0)
+  nama_penerima    String?   @db.LongText
+  status_name      String?   @db.VarChar(50)
+
+  @@ignore
+}
