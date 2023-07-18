@@ -415,7 +415,7 @@ model tbl_sys_role_perm {
 model tbl_sys_user {
   user_id         Int       @id @default(autoincrement())
   username        String?   @unique(map: "username") @db.VarChar(35)
-  password        String?   @db.VarChar(50)
+  password        String?   @db.VarChar(100)
   fullname        String?   @db.VarChar(50)
   email           String?   @db.VarChar(100)
   role_id         Int?
