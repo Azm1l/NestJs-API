@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateSysNumberingDto } from './dto/create-sys-numbering.dto';
 import { UpdateSysNumberingDto } from './dto/update-sys-numbering.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -35,8 +35,8 @@ export class SysNumberingService {
     };
   }
 
-  update(id: string, updateSysNumberingDto: UpdateSysNumberingDto) {
-    const updateData = this.prisma.tbl_sys_numbering.update({
+  async update(id: string, updateSysNumberingDto: UpdateSysNumberingDto) {
+    await this.prisma.tbl_sys_numbering.update({
       where: { number_code: id },
       data: updateSysNumberingDto,
     });

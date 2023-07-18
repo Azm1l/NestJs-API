@@ -21,7 +21,11 @@ export class CustomerService {
       ) + data;
 
     const createData = await this.prisma.customer.create({
-      data: { ...createCustomerDto, customer_id: newCustCode },
+      data: {
+        ...createCustomerDto,
+        customer_id: newCustCode,
+        create_datetime: new Date(),
+      },
     });
 
     await this.prisma.tbl_sys_numbering.update({
@@ -56,7 +60,10 @@ export class CustomerService {
   async update(id: string, updateCustomerDto: UpdateCustomerDto) {
     const updateData = await this.prisma.customer.update({
       where: { customer_id: id },
-      data: updateCustomerDto,
+      data: {
+        ...updateCustomerDto,
+        update_datetime: new Date(),
+      },
     });
     return {
       success: true,
