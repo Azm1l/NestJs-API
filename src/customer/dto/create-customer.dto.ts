@@ -1,6 +1,16 @@
-import { IsNotEmpty, IsString, IsNumber, IsEmail } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsNumber,
+  IsEmail,
+  IsDate,
+} from 'class-validator';
 
 export class CreateCustomerDto {
+  @IsString()
+  @IsNotEmpty()
+  customer_id: string;
+
   @IsNotEmpty()
   @IsNumber()
   customer_type_id: number;
@@ -35,4 +45,7 @@ export class CreateCustomerDto {
 
   @IsString()
   description?: string;
+
+  @IsDate()
+  create_datetime = new Date();
 }
