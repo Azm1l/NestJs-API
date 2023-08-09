@@ -7,8 +7,6 @@ import {
 } from 'class-validator';
 
 export class CreateCustomerDto {
-  @IsString()
-  @IsNotEmpty()
   customer_id: string;
 
   @IsNotEmpty()
