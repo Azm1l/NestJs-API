@@ -1,15 +1,12 @@
 import {
   IsNotEmpty,
   IsString,
-  IsDate,
   IsNumber,
   IsEmail,
   IsPhoneNumber,
 } from 'class-validator';
 
 export class CreateConsigneeDto {
-  @IsNotEmpty()
-  @IsString()
   consignee_id: string;
 
   @IsNumber()
@@ -42,13 +39,4 @@ export class CreateConsigneeDto {
 
   @IsString()
   description: string;
-
-  @IsString()
-  created_by: string;
-
-  @IsDate()
-  created_date: Date;
-
-  @IsDate()
-  updated_datetime: Date;
 }
