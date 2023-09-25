@@ -7,6 +7,7 @@ import { SysNumberingModule } from './sys-numbering/sys-numbering.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ConsigneeModule } from './consignee/consignee.module';
+import { UpdateStatusModule } from './update-status/update-status.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ConsigneeModule } from './consignee/consignee.module';
     AuthModule,
     UsersModule,
     ConsigneeModule,
+    UpdateStatusModule,
   ],
   controllers: [AppController],
   providers: [AppService],

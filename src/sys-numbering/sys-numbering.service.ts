@@ -29,6 +29,13 @@ export class SysNumberingService {
     const oneData = await this.prisma.tbl_sys_numbering.findUnique({
       where: { number_code: id },
     });
+
+    if (!oneData) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Data not found',
+      });
+    }
     return {
       sucess: true,
       data: oneData,
