@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ConsigneeModule } from './consignee/consignee.module';
 import { UpdateStatusModule } from './update-status/update-status.module';
+import { MasterstatusModule } from './masterstatus/masterstatus.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { UpdateStatusModule } from './update-status/update-status.module';
     UsersModule,
     ConsigneeModule,
     UpdateStatusModule,
+    MasterstatusModule,
   ],
   controllers: [AppController],
   providers: [AppService],
